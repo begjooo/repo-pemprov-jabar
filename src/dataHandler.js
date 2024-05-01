@@ -8,7 +8,7 @@ import { ObjectId } from "mongodb";
 
 export async function getAllBUMD() {
   try {
-    console.log('in getAllBUMD'); 
+    // console.log('in getAllBUMD'); 
     const results = await collectionBUMD.find({}).toArray(); //TODO: check error handling
     return results;
   } catch (error) {
@@ -28,11 +28,18 @@ export async function getBUMDNotEmbedded() {
 export async function getSampleBUMD() {
   const idObject1 = new ObjectId("662650b65f0d70008a1ac6e2");
   const idObject2 = new ObjectId("66265ade5b5554f1e30199b4");
+  const idObject3 = new ObjectId("6626ad5f820c1b2afecf8c55");
+  const idObject4 = new ObjectId("6626aee2820c1b2afecf8c5a");
+  const idObject5 = new ObjectId("6626addd820c1b2afecf8c56");
 
 
   const sampleBUMD1 = await collectionBUMD.find({ _id: idObject1 }).toArray();
   const sampleBUMD2 = await collectionBUMD.find({ _id: idObject2 }).toArray();
-  return [sampleBUMD1[0], sampleBUMD2[0]];
+  const sampleBUMD3 = await collectionBUMD.find({ _id: idObject3 }).toArray();
+  const sampleBUMD4 = await collectionBUMD.find({ _id: idObject4 }).toArray();
+  const sampleBUMD5 = await collectionBUMD.find({ _id: idObject5 }).toArray();
+
+  return [sampleBUMD1[0], sampleBUMD2[0], sampleBUMD3[0], sampleBUMD4[0], sampleBUMD5[0]];
 }
 
 async function processEmbeddingsFromBUMD(BUMDItem) {
@@ -115,31 +122,54 @@ export async function matchQueryToPinecone(queryValue){
 
 export async function processQuery(queryValue){
   console.log('query process:', queryValue);
-  const matchingResults = await matchQueryToPinecone(queryValue);
-
-  // disini saya nyoba untuk ngasih gemini dengan input sebagai berikut:
-  // [
-  //   {
-  //     id: '123asc...asd',
-  //     desc: 'PT xxx ...'
-  //   },
-  //   ...,
-  //   {
-  //     id: '3124d...asd',
-  //     desc: 'PT yyy ...'
-  //   },
-  // ]
-  // tapi gemini ga sanggup baca isinya sehingga saya bikin source yang isinya
-  // cuma text array aja
-
-  // const idsList = matchingResults.map((document) => { return document._id.toString() })
-  const sourcesList = matchingResults.map((document) => { return document.desc })
-  // const sourcesList = matchingResults.map((document) => {
-  //   return {id: document._id.toString(), desc: document.desc}
-  // })
+  const listBUMD = await getSampleBUMD();
+  const sourcesList = listBUMD.map((doc) => {return doc.desc});;
+  // console.log(sourcesList)
   
-  const queryProcess = await embeddingGemini.queryPrompt(queryValue, sourcesList);
-  return queryProcess;
+  // analisis jenis query
+  const analisisQueryJSON = await embeddingGemini.queryAnalisys(queryValue);
+  const jenisQuery = JSON.parse(analisisQueryJSON).jenis;
+  console.log('Jenis Querty:', jenisQuery);
+  if(jenisQuery == 'penjabaran'){
+    // console.log('Hanya menyebutkan pasal yang berkaitan');
+    const queryProcess = await embeddingGemini.penjabaranPrompt(queryValue, sourcesList);
+    console.log(queryProcess);
+    return queryProcess;
+  } else if(jenisQuery == 'penjelasan'){
+    // console.log('Jelaskan (rangkum) berdasarkan pasal yang diberikan');
+    const queryProcess = await embeddingGemini.penjelasanPrompt(queryValue, sourcesList);
+    console.log(queryProcess);
+    return queryProcess;
+  } else {
+    console.log('Not a Valid JSON Format!');
+    return 'Not a Valid JSON Format!';
+  };
+
+  // const matchingResults = await matchQueryToPinecone(queryValue);
+
+  // // disini saya nyoba untuk ngasih gemini dengan input sebagai berikut:
+  // // [
+  // //   {
+  // //     id: '123asc...asd',
+  // //     desc: 'PT xxx ...'
+  // //   },
+  // //   ...,
+  // //   {
+  // //     id: '3124d...asd',
+  // //     desc: 'PT yyy ...'
+  // //   },
+  // // ]
+  // // tapi gemini ga sanggup baca isinya sehingga saya bikin source yang isinya
+  // // cuma text array aja
+
+  // // const idsList = matchingResults.map((document) => { return document._id.toString() })
+  // const sourcesList = matchingResults.map((document) => { return document.desc })
+  // // const sourcesList = matchingResults.map((document) => {
+  // //   return {id: document._id.toString(), desc: document.desc}
+  // // })
+  
+  // const queryProcess = await embeddingGemini.penjelasanPrompt(queryValue, sourcesList);
+  // return queryProcess;
 }
 
 export async function removePropertyMongoDb(propertyName) {

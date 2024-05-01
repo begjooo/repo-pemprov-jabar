@@ -16,7 +16,7 @@ export async function upsertManyToPineCone(vectors){
   //   "id": "1",
   //   "values": [0.1, 0.2, 0.3],
   // }]);
-  const pineResult=await index.upsert(vectors);
+  const pineResult = await index.upsert(vectors);
   console.log('pineResult:',pineResult)
 }
 
