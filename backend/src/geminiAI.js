@@ -20,7 +20,7 @@ export async function queryAnalysis(query){
   Jika query mengandung kata 'sebutkan' atau 'apa saja',
   maka query tersebut merupakan penjabaran meskipun terdapat kata 'menjelaskan'.
   
-  Berikan jawaban anda dalam format JSON seperti contoh berikut:
+  Berikan respon jawaban dalam format JSON seperti contoh dibawah.
   
   {
     "jenis": "penjelasan"
@@ -64,7 +64,7 @@ export async function penjabaranPrompt(query, sources){
     Sebutkan semua isi pasal berdasarkan nomor pasal secara lengkap tanpa merubah sedikitpun isi pasalnya.
     Nomor dan isi pasal wajib dicantumkan.
     
-    Berikan respon jawaban dalam format JSON.
+    Berikan respon jawaban dalam format JSON seperti contoh dibawah.
     
     {
       "id": "${s.id}",
@@ -80,7 +80,6 @@ export async function penjabaranPrompt(query, sources){
           "nomor": 2,
           "isi": "isi pasal 2"
         },
-        
       ]
     }
     
@@ -107,6 +106,60 @@ export async function penjabaranPrompt(query, sources){
   return await promptsPerSource;
 };
 
+export async function penjabaranPromptStream(query, sources){
+  console.log('fungsi penjabaranPrompt()');
+  const promptsPerSource = Promise.all(sources.map(async (s) => {
+    const prompt = `
+    Anda akan diberikan pertanyaan dan beberapa dokumen hukum.
+    
+    Pertanyaan: ${query}
+    ID Sumber: ${s.id}
+    Sumber: ${s.desc}
+    Nomor dokumen: ${s.perda}
+    
+    Anda hanya diizinkan untuk menjawab berdasarkan sumber yang telah diberikan.
+    Jawablah pertanyaan yang berhubungan dengan sumber.
+    
+    ID sumber wajib dicantumkan dan ID sumber tidak boleh diubah sedikitpun.
+    Judul dan nomor perda tidak boleh diubah sedikitpun.
+    Berikan similiarity score menurut anda antara pertanyaan dengan sumber.
+    Sebutkan semua nomor pasal yang mendukung jawaban.
+    Sebutkan semua isi pasal berdasarkan nomor pasal secara lengkap tanpa merubah sedikitpun isi pasalnya.
+    Nomor dan isi pasal wajib dicantumkan.
+    
+    Berikan respon jawaban dalam format JSON seperti contoh dibawah.
+
+    {
+      "id": "${s.id}",
+      "judul": "${s.name}",
+      "perda": "${s.perda}",
+      "skor": "similiarity score menurut anda dalam satuan persen (%)",
+      "pasal": [
+        {
+          "nomor": 1,
+          "isi": "isi pasal 1"
+        },
+        {
+          "nomor": 2,
+          "isi": "isi pasal 2"
+        },
+      ]
+    }
+    
+    `;
+    const result = await model.generateContentStream(prompt);
+    let jawaban = '';
+    for await (const chunk of result.stream){
+      const chunkText = chunk.text();
+      jawaban += chunkText;
+    };
+    // console.log(jawaban);
+    return jawaban;
+  }));
+
+  return await promptsPerSource;
+};
+
 export async function penjelasanPrompt(query, sources){
   console.log('fungsi penjelasanPrompt()');
   const promptsPerSource = Promise.all(sources.map(async (s) => {
@@ -127,18 +180,26 @@ export async function penjelasanPrompt(query, sources){
     Berikan semua nomor pasal yang mendukung jawaban.
     Nomor pasal wajib dicantumkan.
 
-    Berikan respon jawaban dalam format JSON.
-    
+    Berikan respon jawaban dalam format JSON seperti contoh dibawah.
+
     {
       "id": "${s.id}",
       "judul": "${s.name}",
       "perda": "${s.perda}",
       "skor": "similiarity score menurut anda dalam satuan persen (%)",
       "jawaban": "rangkum jawaban secara lengkap",
-      "pasal": [ 2, 3 ]
+      "pasal": [
+        {
+          "nomor": 1,
+        },
+        {
+          "nomor": 2,
+        },
+      ]
     }
-    
+
     `;
+
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const jawaban = response.text();

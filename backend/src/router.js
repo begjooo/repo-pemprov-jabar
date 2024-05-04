@@ -50,17 +50,6 @@ router.get('/askQuestion/:query', async (req, res) => {
   };
 });
 
-// router.post('/askQuestion/:query', async (req, res) => {
-//   console.log('halaman /askQuestion/:query');
-//   try {
-//     const query = await processQuery(req.params.query);
-//     res.send(query);
-//   } catch (error) {
-//     console.log(error);
-//     res.send(error);
-//   };
-// });
-
 router.get('/addProperty/:propName/:propValue', (req, res) => {
   addPropertyMongoDb(req.params.propName, req.params.propValue);
   res.send({status: 'ok'});

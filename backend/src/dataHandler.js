@@ -117,35 +117,42 @@ async function getQueryResults(queryValue, sources){
   // queryResult = [
   //   {
   //     id: '00',
-  //     judul: 'Ini judul',
-  //     perda: 'Ini nomor perda',
+  //     judul: 'Dokumen ke A',
+  //     perda: 'Perda 10/2013',
   //     skor: "100%",
   //     pasal: [
   //       {
-  //         "pasal 2": "ini isi pasal 2",
-  //         "pasal 5": "ini isi pasal 5",
+  //         "nomor": 4,
+  //         "isi": "ini isi pasal 4",
+  //       },
+  //       {
+  //         "nomor": 9,
+  //         "isi": "ini isi pasal 9",
   //       }
   //     ]
   //   },
   //   {
   //     id: '01',
-  //     judul: 'Ini judul',
-  //     perda: 'Ini nomor perda',
-  //     skor: "100%",
+  //     judul: 'Dokumen C',
+  //     perda: 'Perda 18/1996',
+  //     skor: "60%",
   //     pasal: [
   //       {
-  //         "pasal 2": "ini isi pasal 2",
+  //         "nomor": 10,
+  //         "isi": "ini isi pasal 10",
   //       },
   //       {
-  //         "pasal 5": "ini isi pasal 5"
+  //         "nomor": 11,
+  //         "isi": "ini isi pasal 11",
   //       }
   //     ]
   //   },
   //   {
   //     id: '02',
-  //     judul: 'Ini judul',
-  //     perda: 'Ini nomor perda',
-  //     skor: "100%",
+  //     judul: 'Dokumen Z',
+  //     perda: 'Perda 76/2009',
+  //     skor: "30%",
+  //     jawaban: "Rangkuman dari AI",
   //     pasal: [
   //       {
   //         "nomor": 2,
@@ -158,15 +165,6 @@ async function getQueryResults(queryValue, sources){
   //     ]
   //   }
   // ];
-  
-  // console.log(queryResult);
-  // console.log(queryResult[0].pasal);
-  // console.log(queryResult[0].pasal[0]);
-  // console.log(queryResult[1].pasal);
-  // console.log(queryResult[1].pasal[0]);
-  // console.log(queryResult[2].pasal);
-  // console.log(queryResult[2].pasal[0].nomor);
-  // console.log(queryResult[2].pasal[1]);
 
   const analysisResult = await embeddingGemini.queryAnalysis(queryValue);
   if(analysisResult.jenis === 'penjabaran'){
@@ -174,7 +172,7 @@ async function getQueryResults(queryValue, sources){
   } else {
     queryResult = await embeddingGemini.penjelasanPrompt(queryValue, sources);
   };
-
+  // queryResult = await embeddingGemini.penjabaranPromptStream(queryValue, sources);
   return queryResult;
 };
 
