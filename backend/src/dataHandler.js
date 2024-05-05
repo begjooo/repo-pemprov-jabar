@@ -112,74 +112,32 @@ async function matchQueryToPinecone(queryValue){
 async function getQueryResults(queryValue, sources){
   console.log('fungsi getQueryResults()');
   
-  let queryResult = null;
-  
-  // queryResult = [
-  //   {
-  //     id: '00',
-  //     judul: 'Dokumen ke A',
-  //     perda: 'Perda 10/2013',
-  //     skor: "100%",
-  //     pasal: [
-  //       {
-  //         "nomor": 4,
-  //         "isi": "ini isi pasal 4",
-  //       },
-  //       {
-  //         "nomor": 9,
-  //         "isi": "ini isi pasal 9",
-  //       }
-  //     ]
-  //   },
-  //   {
-  //     id: '01',
-  //     judul: 'Dokumen C',
-  //     perda: 'Perda 18/1996',
-  //     skor: "60%",
-  //     pasal: [
-  //       {
-  //         "nomor": 10,
-  //         "isi": "ini isi pasal 10",
-  //       },
-  //       {
-  //         "nomor": 11,
-  //         "isi": "ini isi pasal 11",
-  //       }
-  //     ]
-  //   },
-  //   {
-  //     id: '02',
-  //     judul: 'Dokumen Z',
-  //     perda: 'Perda 76/2009',
-  //     skor: "30%",
-  //     jawaban: "Rangkuman dari AI",
-  //     pasal: [
-  //       {
-  //         "nomor": 2,
-  //         "isi": "ini isi pasal 2",
-  //       },
-  //       {
-  //         "nomor": 5,
-  //         "isi": "ini isi pasal 5",
-  //       }
-  //     ]
-  //   }
-  // ];
+  // TODO
+  // let queryResult = null;
+  // const analysisResult = await embeddingGemini.queryAnalysis(queryValue);
+  // if(analysisResult.jenis === 'penjabaran'){
+  //   queryResult = await embeddingGemini.penjabaranPrompt(queryValue, sources);
+  // } else {
+  //   queryResult = await embeddingGemini.penjelasanPrompt(queryValue, sources);
+  // };
 
-  const analysisResult = await embeddingGemini.queryAnalysis(queryValue);
-  if(analysisResult.jenis === 'penjabaran'){
-    queryResult = await embeddingGemini.penjabaranPrompt(queryValue, sources);
-  } else {
-    queryResult = await embeddingGemini.penjelasanPrompt(queryValue, sources);
-  };
-  // queryResult = await embeddingGemini.penjabaranPromptStream(queryValue, sources);
+  // asli
+  // const queryResult = await embeddingGemini.penjelasanPrompt(queryValue, sources);
+  // dummy
+  const queryResult = [
+    '** array 1 **\nisinya adalah blablaba',
+    'array 2'
+  ];
+
   return queryResult;
 };
 
 export async function processQuery(queryValue){
   console.log('fungsi processQuery()');
   console.log('query:', queryValue);
+  // asli
   // const matchingResults = await matchQueryToPinecone(queryValue);
+  // dummy
   const matchingResults = await getSampleBUMD();
   
   const sourcesList = matchingResults.map((document) => {

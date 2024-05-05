@@ -8,14 +8,7 @@
     <div v-if="error" class="error-message">{{ error }}</div>
   </div>
   <div v-for="(result, index) in jawaban" :key="index">
-    <br>{{ result.judul }} {{ result.perda }} (Score: {{ result.skor }})
-    <br>{{ result.jawaban }}
-    <br>Dasar Hukum
-    <div v-for="(pasal) in result.pasal">
-      <ul>
-        <li>Pasal {{ pasal.nomor }} {{ pasal.isi }}</li>
-      </ul>
-    </div>
+    {{ result }}
   </div>
 </template>
 
@@ -36,7 +29,7 @@ const sendMessage = async () => {
     
     const query = await fetch('http://localhost:3000/askQuestion/' + submittedMessage.value)
     jawaban.value = await query.json();
-    // console.log(jawaban.value);
+    console.log(jawaban.value);
   } else {
     error.value = 'Input tidak boleh kosong';
   }

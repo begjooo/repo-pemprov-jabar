@@ -42,8 +42,8 @@ router.get('/processEmbeddings', async (req, res) => {
 router.get('/askQuestion/:query', async (req, res) => {
   console.log('halaman /askQuestion/:query');
   try {
-    const query = await processQuery(req.params.query);
-    res.send(query);
+    const queryResults = await processQuery(req.params.query);
+    res.send(queryResults);
   } catch (error) {
     console.log(error);
     res.send(error);
