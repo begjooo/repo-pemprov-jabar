@@ -121,14 +121,7 @@ async function getQueryResults(queryValue, sources){
   //   queryResult = await embeddingGemini.penjelasanPrompt(queryValue, sources);
   // };
 
-  // asli
-  // const queryResult = await embeddingGemini.penjelasanPrompt(queryValue, sources);
-  // dummy
-  const queryResult = [
-    '** array 1 **\nisinya adalah blablaba',
-    'array 2'
-  ];
-
+  const queryResult = await embeddingGemini.penjelasanPrompt(queryValue, sources);
   return queryResult;
 };
 

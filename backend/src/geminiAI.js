@@ -45,6 +45,7 @@ export async function queryAnalysis(query){
 
 export async function penjabaranPrompt(query, sources){
   console.log('fungsi penjabaranPrompt()');
+  
   const promptsPerSource = Promise.all(sources.map(async (s) => {
     const prompt = `
     Anda akan diberikan pertanyaan dan beberapa dokumen hukum.
@@ -65,15 +66,16 @@ export async function penjabaranPrompt(query, sources){
     Nomor dan isi pasal wajib dicantumkan.
     
     Berikan respon jawaban dengan format seperti contoh dibawah.
+    ** Skor **: similiarity score menurut anda dalam satuan persen (%)\n
     ** ID BUMD **: ${s.id}\n
     ** Nama BUMD **: ${s.name}\n
-    ** Skor **: similiarity score menurut anda dalam satuan persen (%)\n
     ** Penjelasan **: Jawaban secara lengkap\n
     `;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const jawaban = response.text();
+
     return jawaban;
   }));
 
@@ -82,6 +84,7 @@ export async function penjabaranPrompt(query, sources){
 
 export async function penjelasanPrompt(query, sources){
   console.log('fungsi penjelasanPrompt()');
+  
   const promptsPerSource = Promise.all(sources.map(async (s) => {
     const prompt = `
     Anda akan diberikan pertanyaan dan beberapa dokumen hukum.
@@ -101,16 +104,26 @@ export async function penjelasanPrompt(query, sources){
     Nomor pasal wajib dicantumkan.
 
     Berikan respon jawaban dengan format seperti contoh dibawah.
+    ** Skor **: similiarity score menurut anda dalam satuan persen (%)\n
     ** ID BUMD **: ${s.id}\n
     ** Nama BUMD **: ${s.name}\n
-    ** Skor **: similiarity score menurut anda dalam satuan persen (%)\n
     ** Penjelasan **: Jawaban secara lengkap\n
     `;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const jawaban = response.text();
-    return jawaban;
+    const jawaban = response.text(); // asli
+    // const jawaban = '** skor **: 50% \n ini penjelasan dari Gemini API'; // dummy
+    
+    const arrayQueryResult = {
+      "_id": s.id,
+      "name": s.name,
+      "desc": s.desc,
+      "perda": s.perda,
+      "penjelasan": jawaban,
+    };
+
+    return arrayQueryResult;
   }));
 
   return await promptsPerSource;
